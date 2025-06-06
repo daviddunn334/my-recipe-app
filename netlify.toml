@@ -1,8 +1,16 @@
 [build]
-  command = "flutter build web --release"
+  command = """
+    git clone https://github.com/flutter/flutter.git -b stable
+    export PATH="$PATH:`pwd`/flutter/bin"
+    flutter doctor
+    flutter build web --release
+  """
   publish = "build/web"
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
-  status = 200 
+  status = 200
+
+[build.environment]
+  FLUTTER_VERSION = "3.19.3" 

@@ -1,0 +1,2 @@
+C:/Users/david/StudioProjects/my_recipe_app/android/app/.cxx/Debug/22515z3o/x86/CMakeFiles/edit_cache.dir
+C:/Users/david/StudioProjects/my_recipe_app/android/app/.cxx/Debug/22515z3o/x86/CMakeFiles/rebuild_cache.dir

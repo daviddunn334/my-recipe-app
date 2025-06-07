@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../services/supabase_service.dart';
 import '../theme/app_theme.dart';
 import 'dart:ui';
+import 'package:google_fonts/google_fonts.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -103,14 +104,26 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  AppTheme.accentColor2.withOpacity(0.8),
-                  AppTheme.accentColor1.withOpacity(0.6),
+                  Color(0xFF1E3C72),
+                  Color(0xFF2A5298),
                 ],
               ),
             ),
           ),
           
-          // Decorative circles
+          // Decorative pattern overlay - using a solid color instead of an image to avoid CORS issues
+          Opacity(
+            opacity: 0.1,
+            child: Container(
+              width: size.width,
+              height: size.height,
+              decoration: BoxDecoration(
+                color: Colors.white,
+              ),
+            ),
+          ),
+          
+          // Decorative elements
           Positioned(
             top: -size.height * 0.1,
             right: -size.width * 0.2,
@@ -119,7 +132,12 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
               height: size.width * 0.6,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppTheme.accentColor1.withOpacity(0.2),
+                gradient: RadialGradient(
+                  colors: [
+                    Color(0xFF4A00E0).withOpacity(0.3),
+                    Color(0xFF4A00E0).withOpacity(0.0),
+                  ],
+                ),
               ),
             ),
           ),
@@ -131,7 +149,12 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
               height: size.width * 0.7,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppTheme.accentColor2.withOpacity(0.2),
+                gradient: RadialGradient(
+                  colors: [
+                    Color(0xFF8E2DE2).withOpacity(0.3),
+                    Color(0xFF8E2DE2).withOpacity(0.0),
+                  ],
+                ),
               ),
             ),
           ),
@@ -145,47 +168,88 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // App logo/icon
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 10,
-                              spreadRadius: 2,
+                      // App logo/icon with animation
+                      TweenAnimationBuilder<double>(
+                        tween: Tween<double>(begin: 0.0, end: 1.0),
+                        duration: const Duration(milliseconds: 800),
+                        curve: Curves.elasticOut,
+                        builder: (context, value, child) {
+                          return Transform.scale(
+                            scale: value,
+                            child: Container(
+                              width: 120,
+                              height: 120,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    blurRadius: 15,
+                                    spreadRadius: 2,
+                                    offset: Offset(0, 5),
+                                  ),
+                                ],
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  Icons.restaurant_menu,
+                                  size: 60,
+                                  color: Color(0xFF4A00E0),
+                                ),
+                              ),
                             ),
-                          ],
-                        ),
-                        child: Icon(
-                          Icons.restaurant_menu,
-                          size: 50,
-                          color: AppTheme.accentColor2,
-                        ),
+                          );
+                        },
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 30),
                       
-                      // App name
-                      Text(
-                        'My Recipe App',
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                        ),
+                      // App name with animation
+                      TweenAnimationBuilder<double>(
+                        tween: Tween<double>(begin: 0.0, end: 1.0),
+                        duration: const Duration(milliseconds: 800),
+                        curve: Curves.easeOutCubic,
+                        builder: (context, value, child) {
+                          return Opacity(
+                            opacity: value,
+                            child: Transform.translate(
+                              offset: Offset(0, 20 * (1 - value)),
+                              child: Text(
+                                'My Recipe App',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 10),
                       
-                      // Tagline
-                      Text(
-                        'Cook, Share, Enjoy',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Colors.white.withOpacity(0.9),
-                          fontWeight: FontWeight.w300,
-                        ),
+                      // Tagline with animation
+                      TweenAnimationBuilder<double>(
+                        tween: Tween<double>(begin: 0.0, end: 1.0),
+                        duration: const Duration(milliseconds: 800),
+                        curve: Curves.easeOutCubic,
+                        builder: (context, value, child) {
+                          return Opacity(
+                            opacity: value,
+                            child: Transform.translate(
+                              offset: Offset(0, 20 * (1 - value)),
+                              child: Text(
+                                'Cook, Share, Enjoy',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w300,
+                                  color: Colors.white.withOpacity(0.9),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
                       const SizedBox(height: 40),
                       

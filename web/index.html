@@ -34,28 +34,47 @@
 
   <script>
     // The value below is injected by flutter build, do not touch.
-    var serviceWorkerVersion = "{{flutter_service_worker_version}}";
+    const serviceWorkerVersion = "{{flutter_service_worker_version}}";
   </script>
   <!-- This script adds the flutter initialization JS code -->
   <script src="flutter.js" defer></script>
-  <script defer>
-    {{flutter_build_config}}
-  </script>
 </head>
 <body>
   <script>
     window.addEventListener('load', function(ev) {
       // Download main.dart.js
-      _flutter.loader.load({
-        serviceWorker: {
-          serviceWorkerVersion: serviceWorkerVersion,
-        },
-        onEntrypointLoaded: function(engineInitializer) {
-          engineInitializer.initializeEngine().then(function(appRunner) {
-            appRunner.runApp();
-          });
+      _flutter = {
+        loader: {
+          loadEntrypoint: function(options) {
+            return Promise.resolve();
+          }
         }
-      });
+      };
+      
+      // Add the buildConfig that's required by Flutter web
+      _flutter.buildConfig = {
+        canvasKitBaseUrl: "canvaskit/"
+      };
+      
+      // Disable CORS for development
+      var meta = document.createElement('meta');
+      meta.httpEquiv = 'Content-Security-Policy';
+      meta.content = "default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline';";
+      document.head.appendChild(meta);
+      
+      var scriptLoaderItems = [
+        { src: "flutter.js", async: false },
+        { src: "main.dart.js", async: true }
+      ];
+      
+      for (var i = 0; i < scriptLoaderItems.length; i++) {
+        var script = document.createElement('script');
+        script.src = scriptLoaderItems[i].src;
+        script.async = scriptLoaderItems[i].async;
+        document.body.appendChild(script);
+      }
+      
+      window.flutterWebRenderer = "html";
     });
   </script>
 </body>

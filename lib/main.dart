@@ -14,7 +14,13 @@ import 'theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Supabase only
   await SupabaseService.initialize();
+  
+  // Skip Firebase initialization for now
+  // Firebase will be configured properly in a future update
+  
   runApp(const MyApp());
 }
 

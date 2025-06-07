@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 import '../services/supabase_service.dart';
 import '../theme/app_theme.dart';
 
@@ -24,15 +22,10 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
   final List<String> _ingredients = [];
   final List<String> _steps = [];
   final List<String> _tags = [];
-  String? _photoUrl;
   bool _isLoading = false;
 
   final _ingredientController = TextEditingController();
   final _stepController = TextEditingController();
-
-  File? _imageFile;
-  bool _isUploadingPhoto = false;
-  String? _currentPhotoUrl;
 
   @override
   void initState() {
@@ -43,7 +36,6 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
     _ingredients.addAll(List<String>.from(widget.recipe['ingredients'] ?? []));
     _steps.addAll(List<String>.from(widget.recipe['steps'] ?? []));
     _tags.addAll(List<String>.from(widget.recipe['category'] ?? []));
-    _currentPhotoUrl = widget.recipe['photo_url'];
   }
 
   @override
@@ -53,31 +45,6 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
     _ingredientController.dispose();
     _stepController.dispose();
     super.dispose();
-  }
-
-  Future<void> _handlePhotoUpload() async {
-    try {
-      final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(
-        source: ImageSource.camera,
-        maxWidth: 1200,
-        maxHeight: 1200,
-        imageQuality: 85,
-      );
-
-      if (image != null) {
-        setState(() {
-          _imageFile = File(image.path);
-          _isUploadingPhoto = true;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to capture photo: $e')),
-        );
-      }
-    }
   }
 
   void _addIngredient() {
@@ -128,29 +95,6 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // If we have a new photo, upload it first
-      String? photoUrl = _currentPhotoUrl;
-      if (_imageFile != null) {
-        try {
-          // Delete old photo if it exists
-          if (_currentPhotoUrl != null) {
-            await SupabaseService().deleteRecipePhoto(_currentPhotoUrl!);
-          }
-
-          // Upload new photo
-          photoUrl = await SupabaseService().uploadRecipePhoto(
-            widget.recipe['id'],
-            _imageFile!.path,
-          );
-        } catch (e) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Photo update failed: $e')),
-            );
-          }
-        }
-      }
-
       // Update the recipe
       await SupabaseService().updateRecipe(
         widget.recipe['id'],
@@ -160,7 +104,6 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
           'ingredients': _ingredients,
           'steps': _steps,
           'category': _tags,
-          'photo_url': photoUrl,
         },
       );
       
@@ -180,7 +123,6 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _isUploadingPhoto = false;
         });
       }
     }
@@ -322,77 +264,6 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
                         }
                         return null;
                       },
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Photo Upload
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.2),
-                          spreadRadius: 2,
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        if (_imageFile != null) ...[
-                          Container(
-                            height: 200,
-                            width: double.infinity,
-                            margin: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              image: DecorationImage(
-                                image: FileImage(_imageFile!),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ] else if (_currentPhotoUrl != null) ...[
-                          Container(
-                            height: 200,
-                            width: double.infinity,
-                            margin: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              image: DecorationImage(
-                                image: NetworkImage(_currentPhotoUrl!),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: 8),
-                        ElevatedButton.icon(
-                          onPressed: _isUploadingPhoto ? null : _handlePhotoUpload,
-                          icon: _isUploadingPhoto
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Icon(Icons.photo_camera),
-                          label: Text(_imageFile != null || _currentPhotoUrl != null 
-                              ? 'Change Photo' 
-                              : 'Add Photo'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.accentColor1,
-                            minimumSize: const Size(double.infinity, 56),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -593,4 +464,4 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
       ),
     );
   }
-} 
+}
